@@ -21,6 +21,7 @@ function showCurlCommand(subscription) {
     ' -d "{\\"registration_ids\\":[\\"' + subscriptionId + '\\"]}"';
 
   curlCommandDiv.textContent = curlCommand;
+  console.log(curlCommand);
 }
 
 function unsubscribe() {
