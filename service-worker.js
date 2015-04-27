@@ -1,8 +1,14 @@
+self.addEventListener('onmessage', function(event) {
+  'use strict';
+
+  console.log(event);
+});
+
 self.addEventListener('push', function(event) {
     'use strict';
 
     event.waitUntil(
-        fetch("https://patient-ui.firebaseio.com/rest/push.json").then(function(response) {
+        fetch('https://patient-ui.firebaseio.com/rest/push.json').then(function(response) {
 
             if (response.status !== 200) {
                 console.log('Looks like there was a problem with fetch. Status code: ' + response.status);
