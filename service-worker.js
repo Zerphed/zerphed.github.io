@@ -1,19 +1,7 @@
-self.addEventListener('onmessage', function(event) {
-  'use strict';
-
-  console.log(event);
-});
-
 self.addEventListener('message', function(event) {
   'use strict';
 
-  console.log(event);
-});
-
-self.onmessage && self.onmessage.addEventListener('message', function(event) {
-  'use strict';
-
-  console.log(event);
+  console.log(event.message);
 });
 
 self.addEventListener('push', function(event) {
