@@ -1,62 +1,50 @@
-function get(url) {
-  // Return a new promise.
-  return new Promise(function(resolve, reject) {
-    // Do the usual XHR stuff
-    var req = new XMLHttpRequest();
-    req.open('GET', url);
-
-    req.onload = function() {
-      // This is called even on 404 etc
-      // so check the status
-      if (req.status == 200) {
-        // Resolve the promise with the response text
-        resolve(req.response);
-      }
-      else {
-        // Otherwise reject with the status text
-        // which will hopefully be a meaningful error
-        reject(Error(req.statusText));
-      }
-    };
-
-    // Handle network errors
-    req.onerror = function() {
-      reject(Error("Network Error"));
-    };
-
-    // Make the request
-    req.send();
-  });
-}
-
 'use strict';
 
 self.addEventListener('push', function(event) {
-  console.log('Received a push message', event);
+  event.waitUntil(
+    console.log('Received a push message', event);
 
-  get("https://patient-ui.firebaseio.com/rest/push.json").then(function(response) {
-    console.log("Received push message information from Firebase.");
-    console.log(response);
+    fetch("https://patient-ui.firebaseio.com/rest/push.json").then(function(response) {
 
-    var jsonResponse = JSON.parse(response);
+      if (response.status !=== 200) {
+        console.error('Looks like there was a problem with fetch. Status code: ' + response.status);
+        throw new Error();
+      }
 
-    var title = jsonResponse.title;
-    var body = jsonResponse.body;
+      return response.json().then(function(data) {
+        if (data.error) {
+          console.error('The API returned an error', data.error);
+          throw new Error();
+        }
+
+        console.log("Received push message information from Firebase.");
+
+        var title = data.title;
+        var body = data.body;
+        var icon = '/img/icon-192x192.png';
+        var tag = 'simple-push-demo-notification-tag';
+
+        return self.registration.showNotification(title, {
+          body: body,
+          icon: icon,
+          tag: tag
+        });
+      });
+  }).catch(function(err) {
+    console.log('Unable to retrieve data from Firebase', err)
+
+    var title = 'An error occurred';
+    var body = 'We were unable to get information for this push message.';
     var icon = '/img/icon-192x192.png';
     var tag = 'simple-push-demo-notification-tag';
 
-    event.waitUntil(
-      self.registration.showNotification(title, {
+    return self.registration.showNotification(title, {
         body: body,
         icon: icon,
         tag: tag
-      })
-    );
-
-  }, function(error) {
-    console.log("Failed to receive push message information from Firebase.")
-    console.log(error);
-  });
+    });
+    })
+  );
 });
 
 
