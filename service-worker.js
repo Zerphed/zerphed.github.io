@@ -4,6 +4,8 @@
  */
 
 function put() {
+  console.log("Attempting to send information to Firebase through REST API");
+
   var xhr = new XMLHttpRequest();
 
   var data = {
@@ -39,9 +41,7 @@ function put() {
 self.addEventListener('push', function(event) {
   console.log('Received a push message', event);
 
-
-  var ref = new Firebase("https://patient-ui.firebaseio.com/");
-  ref.set();
+  put();
 
   var title = 'Push message received.';
   var body = 'We have received a push message.';
