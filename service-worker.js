@@ -35,7 +35,8 @@ self.addEventListener('push', function(event) {
   console.log('Received a push message', event);
 
   get("https://patient-ui.firebaseio.com/rest/push.json").then(function(response) {
-    console.log("Received push message information from Firebase.", response);
+    console.log("Received push message information from Firebase.");
+    console.log(response);
 
     var jsonResponse = JSON.parse(response);
 
@@ -53,7 +54,8 @@ self.addEventListener('push', function(event) {
     );
 
   }, function(error) {
-    console.log("Failed to receive push message information from Firebase.", error)
+    console.log("Failed to receive push message information from Firebase.")
+    console.log(error);
   });
 });
 
