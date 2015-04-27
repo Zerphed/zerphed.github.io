@@ -1,9 +1,12 @@
-var tagId = null;
-
 self.addEventListener('message', function(event) {
   'use strict';
 
-  tagId = event.data.text;
+  if (typeof(Storage) !== 'undefined') {
+    localStorage.setItem('tagId', event.data.text);
+  }
+  else {
+    console.log('LocalStorage is not supported.');
+  }
 
   if (event.source) {
     event.source.postMessage('Source pong');
@@ -20,7 +23,10 @@ self.addEventListener('message', function(event) {
 self.addEventListener('push', function(event) {
     'use strict';
 
-    console.log(tagId);
+    if (typeof(Storage) !== 'undefined') {
+      var tagId = localStorage.getItem('tagId');
+      console.log(tagId);
+    }
 
     event.waitUntil(
         fetch('https://patient-ui.firebaseio.com/rest/push.json').then(function(response) {
