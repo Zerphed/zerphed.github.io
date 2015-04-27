@@ -2,6 +2,9 @@ self.addEventListener('message', function(event) {
   'use strict';
 
   console.log('Got message in ServiceWorker', event.data.text);
+  console.log(event);
+  console.log(event.data);
+  console.log(event.data.text);
 
   if (event.source) {
     event.source.postMessage('Source pong');
