@@ -4,7 +4,7 @@
  */
 
 function put() {
-  console.log("Attempting to send information to Firebase through REST API");
+  console.log("Attempting to PUT information to Firebase through REST API");
 
   var xhr = new XMLHttpRequest();
 
@@ -18,7 +18,7 @@ function put() {
     }
   };
 
-  xhr.open("PUT", "https://patient-ui.firebaseio.com/rest/hello.json", false);
+  xhr.open("PUT", "https://patient-ui.firebaseio.com/rest/hello.json", true);
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.send();
 
@@ -28,6 +28,38 @@ function put() {
   else {
     console.log("The request failed, response status: " + xhr.status + " " + xhr.statusText + ".")
   }
+}
+
+
+function get(url) {
+  // Return a new promise.
+  return new Promise(function(resolve, reject) {
+    // Do the usual XHR stuff
+    var req = new XMLHttpRequest();
+    req.open('GET', url);
+
+    req.onload = function() {
+      // This is called even on 404 etc
+      // so check the status
+      if (req.status == 200) {
+        // Resolve the promise with the response text
+        resolve(req.response);
+      }
+      else {
+        // Otherwise reject with the status text
+        // which will hopefully be a meaningful error
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error("Network Error"));
+    };
+
+    // Make the request
+    req.send();
+  });
 }
 
 
@@ -41,20 +73,27 @@ function put() {
 self.addEventListener('push', function(event) {
   console.log('Received a push message', event);
 
-  put();
+  get("https://patient-ui.firebaseio.com/rest/push.json").then(function(response) {
+    console.log("Received push message information from Firebase.", response);
 
-  var title = 'Push message received.';
-  var body = 'We have received a push message.';
-  var icon = '/img/icon-192x192.png';
-  var tag = 'simple-push-demo-notification-tag';
+    var jsonResponse = JSON.parse(response);
 
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body: body,
-      icon: icon,
-      tag: tag
-    })
-  );
+    var title = jsonResponse.title;
+    var body = jsonResponse.body;
+    var icon = '/img/icon-192x192.png';
+    var tag = 'simple-push-demo-notification-tag';
+
+    event.waitUntil(
+      self.registration.showNotification(title, {
+        body: body,
+        icon: icon,
+        tag: tag
+      })
+    );
+
+  }, function(error) {
+    console.error("Failed to receive push message information from Firebase.", error)
+  });
 });
 
 
