@@ -2,8 +2,6 @@ self.addEventListener('push', function(event) {
     'use strict';
 
     event.waitUntil(
-        console.log('Received a push message', event);
-
         fetch("https://patient-ui.firebaseio.com/rest/push.json").then(function(response) {
 
             if (response.status !== 200) {
@@ -31,7 +29,7 @@ self.addEventListener('push', function(event) {
                 });
             });
         }).catch(function(err) {
-            console.log('Unable to retrieve data from Firebase', err)
+            console.log('Unable to retrieve data from Firebase', err);
 
             var title = 'An error occurred';
             var body = 'We were unable to get information for this push message.';
