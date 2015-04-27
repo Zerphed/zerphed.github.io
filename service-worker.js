@@ -29,12 +29,6 @@ function get(url) {
   });
 }
 
-
-/* Start of service worker
- *
- * MAY EDIT
- */
-
 'use strict';
 
 self.addEventListener('push', function(event) {
@@ -59,7 +53,7 @@ self.addEventListener('push', function(event) {
     );
 
   }, function(error) {
-    console.error("Failed to receive push message information from Firebase.", error)
+    console.log("Failed to receive push message information from Firebase.", error)
   });
 });
 
