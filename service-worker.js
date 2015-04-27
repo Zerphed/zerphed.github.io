@@ -1,36 +1,3 @@
-/* Firebase library v2.2.4
- *
- * DO NOT TOUCH
- */
-
-function put() {
-  console.log("Attempting to PUT information to Firebase through REST API");
-
-  var xhr = new XMLHttpRequest();
-
-  var data = {
-    title: "Hello World!",
-    author: "Firebase",
-    location: {
-      city: "San Francisco",
-      state: "California",
-      zip: 94103
-    }
-  };
-
-  xhr.open("PUT", "https://patient-ui.firebaseio.com/rest/hello.json", true);
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.send();
-
-  if (xhr.status === 200) {
-    console.log("The request succeeded, response was: " + xhr.response);
-  }
-  else {
-    console.log("The request failed, response status: " + xhr.status + " " + xhr.statusText + ".")
-  }
-}
-
-
 function get(url) {
   // Return a new promise.
   return new Promise(function(resolve, reject) {
