@@ -154,7 +154,9 @@ window.addEventListener('load', function() {
         // We need the service worker registration to check for a subscription
         navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
 
-          navigator.serviceWorker.controller.postMessage("trololo");
+          serviceWorkerRegistration.active.postMessage({
+            text: "Taas mennään saatana!"
+          });
 
           // Do we already have a push message subscription?
           serviceWorkerRegistration.pushManager.getSubscription()
