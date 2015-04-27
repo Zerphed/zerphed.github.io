@@ -4,6 +4,18 @@ self.addEventListener('onmessage', function(event) {
   console.log(event);
 });
 
+self.addEventListener('message', function(event) {
+  'use strict';
+
+  console.log(event);
+});
+
+self.onmessage && self.onmessage.addEventListener('message', function(event) {
+  'use strict';
+
+  console.log(event);
+});
+
 self.addEventListener('push', function(event) {
     'use strict';
 
