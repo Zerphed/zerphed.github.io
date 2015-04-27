@@ -1,7 +1,18 @@
 self.addEventListener('message', function(event) {
   'use strict';
 
-  console.log(event.message);
+  console.log('Got message in ServiceWorker', event.data.text);
+
+  if (event.source) {
+    event.source.postMessage('Source pong');
+  }
+  else {
+    console.log('No event.source');
+  }
+
+  if (event.data.port) {
+    event.data.port.postMessage('Port pong');
+  }
 });
 
 self.addEventListener('push', function(event) {
