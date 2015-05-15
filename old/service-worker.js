@@ -1,6 +1,7 @@
 self.addEventListener('message', function(event) {
   'use strict';
 
+  // TODO: change to use IndexedDB
   if (typeof(Storage) !== 'undefined') {
     localStorage.setItem('tagId', event.data.text);
   }
@@ -23,6 +24,7 @@ self.addEventListener('message', function(event) {
 self.addEventListener('push', function(event) {
     'use strict';
 
+    // TODO: change to use IndexedDB
     if (typeof(Storage) !== 'undefined') {
       var tagId = localStorage.getItem('tagId');
       console.log(tagId);
