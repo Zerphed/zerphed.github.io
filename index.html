@@ -23,7 +23,7 @@ var width = 960,
 var color = d3.scale.category20();
 
 var force = d3.layout.force()
-    .charge(-1800)
+    .charge(-1200)
     .linkDistance(90)
     .size([width, height]);
 
@@ -56,8 +56,11 @@ d3.json("mesh.json", function(error, graph) {
 
   var labels = gnode.append("text")
       .attr("dx", "1.3em")
-      .attr("dy", "1.3em")
-      .text(function(d) { return "Id: " + String(d.id); });
+      .attr("dy", "0.3em")
+      .text(function(d) {
+          var types = ["Server", "Repeater", "Tag"];
+          return types[d.type];
+      });
 
   console.log(labels);
 
