@@ -5,15 +5,34 @@ $(function() {
 
     function myGraph(el) {
 
+        // Previous data in JSON format for difference comparison
+        this.prevJsonData = null;
+
         // Add and remove elements on the graph object
         this.addNode = function (node) {
             nodes.push(node);
             this.update();
         };
 
+        this.addNodeWithId = function(id) {
+            var type = null;
+
+            if (id === 0) {
+                type = 0;
+            }
+            else if (id%2 === 0) {
+                type = 2;
+            }
+            else {
+                type = 1;
+            }
+
+            nodes.push({"id": id, "type": type});
+        }
+
         this.removeNode = function (id) {
             var i = 0;
-            var n = findNode(id);
+            var n = this.findNode(id);
             while (i < links.length) {
                 if ((links[i]['source'] == n)||(links[i]['target'] == n))
                 {
@@ -21,14 +40,14 @@ $(function() {
                 }
                 else i++;
             }
-            nodes.splice(findNodeIndex(id),1);
+            nodes.splice(this.findNodeIndex(id),1);
             this.update();
         };
 
         this.removeLink = function(source, target) {
-            for(var i=0; i<links.length; i++)
+            for (var i=0; i < links.length; i++)
             {
-                if(links[i].source == source && links[i].target == target)
+                if (links[i].source === source && links[i].target === target)
                 {
                     links.splice(i,1);
                     break;
@@ -123,7 +142,7 @@ $(function() {
                 .attr("dx", "1.3em")
                 .attr("dy", "0.3em")
                 .text(function(d) {
-                    var types = ["Server", "Repeater", "Tag"];
+                    var types = ["Server", "Receiver", "Tag"];
                     return types[d.type] + " id: " + d.id;
                 });
 
@@ -159,6 +178,8 @@ function initGraph()
         .then(function(response) {
             return response.json();
         }).then(function(json) {
+            // Duplicate the JSON object in initialization
+            graph.prevJsonData = JSON.parse(JSON.stringify(json));
 
             for (var n in json.nodes) {
                 var node = json.nodes[n];
@@ -181,24 +202,54 @@ setInterval(function() {
         .then(function(response) {
             return response.json();
         }).then(function(json) {
-            // Remove all nodes and links
-            graph.removeAllNodes();
-            graph.removeAllLinks();
 
-            // Add the new nodes
-            for (var n in json.nodes) {
-                var node = json.nodes[n];
-                graph.addNode(node);
+            // Replace the previous JSON data with the new
+            var prevJsonData = graph.prevJsonData;
+            graph.prevJsonData = json;
+
+            // Check which nodes are to be added and which removed
+            var prevNodeIds = _.map(prevJsonData.nodes, function(n) { return n.id; });
+            var nextNodeIds = _.map(json.nodes, function(n) { return n.id; });
+            var addedNodeIds = _.difference(nextNodeIds, prevNodeIds);
+            var removedNodeIds = _.difference(prevNodeIds, nextNodeIds);
+
+            // Remove and add the appropriate nodes
+            for (var i in removedNodeIds) {
+                graph.removeNode(removedNodeIds[i]);
             }
 
-            // Add the new links
-            for (var l in json.links) {
-                var link = json.links[l];
-                graph.addLink(link);
+            for (var i in addedNodeIds) {
+                graph.addNodeWithId(addedNodeIds[i]);
             }
-        }).then(function() {
-            // Update the graph
-            graph.update();
+
+            // Check which links are to be added and which removed
+            var prevLinks = _.map(prevJsonData.links, function(l) { return (String(l.source) + "-" + String(l.target)); });
+            var nextLinks = _.map(json.links, function(l) { return (String(l.source) + "-" + String(l.target)); });
+            var addedLinks = _.difference(nextLinks, prevLinks);
+            var removedLinks = _.difference(prevLinks, nextLinks);
+
+            // CRUFTY HACK XXXXX
+            // If there are many updated links, just rebuild the thing
+            if (removedLinks.length > 3) {
+                graph.removeAllLinks();
+                for (var i in json.links) {
+                    var link = json.links[i];
+                    graph.addLink(link);
+                }
+            }
+            // If there are only a few, handle it properly
+            else {
+                // Remove and add the appropriate links
+                for (var i in removedLinks) {
+                    var values = removedLinks[i].split("-");
+                    graph.removeLink(parseInt(values[0]), parseInt(values[1]));
+                }
+
+                for (var i in addedLinks) {
+                    var values = addedLinks[i].split("-");
+                    graph.addLink({"source": parseInt(values[0]), "target": parseInt(values[1]), "value": 5});
+                }
+            }
         });
 }, 5000);
 
