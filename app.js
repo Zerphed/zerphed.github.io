@@ -14,7 +14,6 @@ var LINKS = [];
 var SerialPort = serialport.SerialPort;
 var PRUNING = false;
 var ADDING = false;
-var removeIdx = null;
 
 /*
  * ================= UTILITY FUNCTIONS =====================
@@ -264,32 +263,26 @@ function pruneNodesArray() {
 }
 
 /*
- * ===================== TEST FUNCTIONS =======================
+ * ===================== FAKE NODE FUNCTIONS =======================
  */
 
-function initialize() {
-    for (var i = 0; i < 11; ++i) {
-        if (i === removeIdx)
-            continue;
-        receiveData(String(i) + "\r\n");
+function advertiseFakeNodes() {
+
+    // Advertise the server node on regular intervals
+    receiveData(String(0));
+
+    for (var i = 13; i < 16; ++i) {
+        receiveData(String(i));
     }
 }
 
-setTimeout(function() {
-    receiveData(String(11) + "\r\n");
-}, 8000);
-
-setTimeout(function() {
-    removeIdx = 1;
-}, 10000);
-
-setInterval(initialize, SEND_INTERVAL);
+setInterval(advertiseFakeNodes, SEND_INTERVAL);
 
 
 /*
  * ================= SERIAL PORT FUNCTIONS ====================
  */
-/*
+
 // List available serial ports
 serialport.list(function (err, ports) {
     console.log('### Available serial ports:');
@@ -309,7 +302,7 @@ PORT.on('open', showPortOpen);
 PORT.on('data', receiveData);
 PORT.on('close', showPortClose);
 PORT.on('error', showError);
-*/
+
 function showPortOpen() {
    console.log('### Serial port open with baud rate: ' + PORT.options.baudRate);
 }
@@ -358,7 +351,9 @@ app.get('/', function(req, res) {
 
 app.get('/data', function(req, res) {
 
-    while (PRUNING || ADDING);
+    while (PRUNING || ADDING) {
+        continue;
+    }
 
     res.json(JSON.parse(JSON.stringify({
         "nodes": NODES,
@@ -369,13 +364,8 @@ app.get('/data', function(req, res) {
 /*
  * ======================= TIMED EVENTS ===============================
  */
-/*
-// Advertise the server node
-setInterval(function() {
-    receiveData(String(0));
-}, 1000);
-*/
-// Prune the nodes array
+// Prune the nodes array in regular intervals
 setInterval(pruneNodesArray, TIMEOUT);
 
+// Start the server on port 3000
 app.listen(3000);

@@ -176,6 +176,7 @@ function initGraph()
 
     $.getJSON(host + 'data')
         .done(function(json) {
+
             // Duplicate the JSON object in initialization
             graph.prevJsonData = JSON.parse(JSON.stringify(json));
 
