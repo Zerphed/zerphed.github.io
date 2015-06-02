@@ -12,7 +12,7 @@
 
 	function switchStylestyle(styleName)
 	{
-		$('link[rel*=style][title]').each(function(i) 
+		$('link[rel*=style][title]').each(function(i)
 		{
 			this.disabled = true;
 			if (this.getAttribute('title') == styleName) this.disabled = false;
@@ -56,10 +56,10 @@ function eraseCookie(name)
 		if(jQuery('.demo_changer').hasClass("active")){
 			jQuery('.demo_changer').animate({"left":"-140px"},function(){
 				jQuery('.demo_changer').toggleClass("active");
-			});						
+			});
 		}else{
 			jQuery('.demo_changer').animate({"left":"0px"},function(){
 				jQuery('.demo_changer').toggleClass("active");
-			});			
-		} 
+			});
+		}
 	});

@@ -5,16 +5,16 @@ var firebase = require('firebase');
 var HTML_DIR = __dirname + '/public/html/';
 
 const SEND_INTERVAL = 2000;
-const TIMEOUT = 5000; // Timeout until tag is removed if it hasn't advertised itself
-const PORT_NAME = ''; // Name of the serial port
+const TIMEOUT = 7000; // Timeout until tag is removed if it hasn't advertised itself
+const PORT_NAME = '/dev/cu.usbserial-FTFRXCAD'; // Name of the serial port
 
 var PORT = null;
 var NODES = [];
 var LINKS = [];
-var removeIdx = null;
 var SerialPort = serialport.SerialPort;
 var PRUNING = false;
 var ADDING = false;
+var removeIdx = null;
 
 /*
  * ================= UTILITY FUNCTIONS =====================
@@ -177,8 +177,6 @@ function removeNode(node) {
     }
 
     // Remove the node from the NODES array
-    console.log("### Removing node:");
-    console.log(NODES[nodeIdx]);
     removeWithIndex(NODES, nodeIdx);
 }
 
@@ -233,8 +231,6 @@ function removeLinksForNodeIndex(nodeIdx) {
     }
 
     for (var i = 0; i < remove.length; ++i) {
-        console.log("### Removing link:");
-        console.log(LINKS[i]);
         removeWithIndex(LINKS, remove[i]);
     }
 }
@@ -270,6 +266,7 @@ function pruneNodesArray() {
 /*
  * ===================== TEST FUNCTIONS =======================
  */
+
 function initialize() {
     for (var i = 0; i < 11; ++i) {
         if (i === removeIdx)
@@ -282,10 +279,17 @@ setTimeout(function() {
     receiveData(String(11) + "\r\n");
 }, 8000);
 
+setTimeout(function() {
+    removeIdx = 1;
+}, 10000);
+
+setInterval(initialize, SEND_INTERVAL);
+
+
 /*
  * ================= SERIAL PORT FUNCTIONS ====================
  */
-
+/*
 // List available serial ports
 serialport.list(function (err, ports) {
     console.log('### Available serial ports:');
@@ -294,36 +298,39 @@ serialport.list(function (err, ports) {
     });
 });
 
-/*
+
 PORT = new SerialPort(PORT_NAME, {
    baudRate: 9600,
    // Each new packet should end in a return and newline
-   parser: serialport.parsers.readline("\r\n")
+   parser: serialport.parsers.raw//serialport.parsers.readline("\r\n")
 });
 
 PORT.on('open', showPortOpen);
-PORT.on('data', saveLatestData);
+PORT.on('data', receiveData);
 PORT.on('close', showPortClose);
 PORT.on('error', showError);
 */
-
 function showPortOpen() {
    console.log('### Serial port open with baud rate: ' + PORT.options.baudRate);
 }
 
 function receiveData(data) {
-    //console.log('### Received data from serial port: ' + data.trim());
-    var id = parseInt(data.trim());
-    var node = findNodeWithId(id);
+    var id = parseInt(data);
+    console.log('### Received data: ' + id);
 
-    if (node) {
-        node.timestamp = new Date();
-    }
-    else {
-        node = new Node(id);
-        ADDING = true;
-        addNode(node);
-        ADDING = false;
+    if (!isNaN(id)) {
+        var node = findNodeWithId(id);
+
+        if (node) {
+            node.timestamp = new Date();
+        }
+        else {
+            console.log('### Adding a new node with id: ' + id);
+            node = new Node(id);
+            ADDING = true;
+            addNode(node);
+            ADDING = false;
+        }
     }
 }
 
@@ -359,11 +366,16 @@ app.get('/data', function(req, res) {
     })));
 });
 
-setTimeout(function() {
-    removeIdx = 1;
-}, 10000);
-
-setInterval(initialize, SEND_INTERVAL);
+/*
+ * ======================= TIMED EVENTS ===============================
+ */
+/*
+// Advertise the server node
+setInterval(function() {
+    receiveData(String(0));
+}, 1000);
+*/
+// Prune the nodes array
 setInterval(pruneNodesArray, TIMEOUT);
 
 app.listen(3000);

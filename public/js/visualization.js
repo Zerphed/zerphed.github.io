@@ -174,10 +174,8 @@ function initGraph()
 {
     graph = new myGraph("#visualization-container");
 
-    fetch(host + 'data')
-        .then(function(response) {
-            return response.json();
-        }).then(function(json) {
+    $.getJSON(host + 'data')
+        .done(function(json) {
             // Duplicate the JSON object in initialization
             graph.prevJsonData = JSON.parse(JSON.stringify(json));
 
@@ -198,10 +196,8 @@ function initGraph()
 initGraph();
 
 setInterval(function() {
-    fetch(host + 'data')
-        .then(function(response) {
-            return response.json();
-        }).then(function(json) {
+    $.getJSON(host + 'data')
+        .done(function(json) {
 
             // Replace the previous JSON data with the new
             var prevJsonData = graph.prevJsonData;
